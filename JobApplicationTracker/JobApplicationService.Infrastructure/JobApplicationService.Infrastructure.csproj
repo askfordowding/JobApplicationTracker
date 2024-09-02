@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UserSecretsId>ca2cf9e8-5396-4177-9e73-04be1271ae5f</UserSecretsId>
