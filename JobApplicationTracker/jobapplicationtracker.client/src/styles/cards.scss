@@ -1,0 +1,32 @@
+﻿// cards.scss
+.card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        background-color: $primary-color;
+        color: #fff;
+        padding: 1rem;
+        font-size: 1.25rem;
+        font-weight: $font-weight-bold;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        color: $text-color;
+    }
+
+    .card-footer {
+        padding: 1rem;
+        background-color: $background-color;
+        text-align: right;
+    }
+}

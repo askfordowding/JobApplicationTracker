@@ -1,4 +1,5 @@
-﻿using JobApplicationService.Core.Models;
+﻿// Controllers/JobApplicationsController.cs
+using JobApplicationService.Core.Models;
 using JobApplicationService.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,8 +15,13 @@ public class JobApplicationsController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ActionResult<JobApplication>> Create(JobApplication jobApplication)
+	public async Task<ActionResult<JobApplication>> Create([FromBody] JobApplication jobApplication)
 	{
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(ModelState);
+		}
+
 		await _repository.AddAsync(jobApplication);
 		return CreatedAtAction(nameof(GetById), new { id = jobApplication.Id }, jobApplication);
 	}
@@ -23,15 +29,27 @@ public class JobApplicationsController : ControllerBase
 	[HttpDelete("{id}")]
 	public async Task<IActionResult> Delete(int id)
 	{
+		var existing = await _repository.GetByIdAsync(id);
+		if (existing == null)
+		{
+			return NotFound();
+		}
+
 		await _repository.DeleteAsync(id);
 		return NoContent();
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<IEnumerable<JobApplication>>> GetAll()
+	public async Task<ActionResult<IEnumerable<JobApplication>>> GetAll(int page = 1, int pageSize = 10)
 	{
 		var jobApplications = await _repository.GetAllAsync();
-		return Ok(jobApplications);
+
+		var paginatedApplications = jobApplications
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToList();
+
+		return Ok(paginatedApplications);
 	}
 
 	[HttpGet("{id}")]
@@ -46,12 +64,19 @@ public class JobApplicationsController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> Update(int id, JobApplication jobApplication)
+	public async Task<IActionResult> Update(int id, [FromBody] JobApplication jobApplication)
 	{
 		if (id != jobApplication.Id)
 		{
-			return BadRequest();
+			return BadRequest("ID mismatch.");
 		}
+
+		var existing = await _repository.GetByIdAsync(id);
+		if (existing == null)
+		{
+			return NotFound();
+		}
+
 		await _repository.UpdateAsync(jobApplication);
 		return NoContent();
 	}

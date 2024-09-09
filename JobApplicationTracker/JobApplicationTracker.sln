@@ -11,7 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobApplicationService.API",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobApplicationService.Tests", "JobApplicationService.Tests\JobApplicationService.Tests.csproj", "{C20C8601-6461-489C-B540-070ECB89FEB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobApplicationService.IntegrationTests", "JobApplicationService.IntegrationTests\JobApplicationService.IntegrationTests.csproj", "{5BBF836E-30AC-46E1-AE66-FE996BABF569}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobApplicationService.IntegrationTests", "JobApplicationService.IntegrationTests\JobApplicationService.IntegrationTests.csproj", "{5BBF836E-30AC-46E1-AE66-FE996BABF569}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "jobapplicationtracker.client", "JobApplicationTracker.Client\jobapplicationtracker.client.esproj", "{2B3DA57D-67EF-415E-9A17-111A02B0997B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobApplicationService.Console", "JobApplicationService.Console\JobApplicationService.Console.csproj", "{D7E1A391-390F-41D9-8014-8E44E6E92D07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,16 @@ Global
 		{5BBF836E-30AC-46E1-AE66-FE996BABF569}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BBF836E-30AC-46E1-AE66-FE996BABF569}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BBF836E-30AC-46E1-AE66-FE996BABF569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B3DA57D-67EF-415E-9A17-111A02B0997B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D7E1A391-390F-41D9-8014-8E44E6E92D07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E1A391-390F-41D9-8014-8E44E6E92D07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E1A391-390F-41D9-8014-8E44E6E92D07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E1A391-390F-41D9-8014-8E44E6E92D07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,36 +1,44 @@
-using JobApplicationService.Core.Managers;
 using JobApplicationService.Core.Repositories;
 using JobApplicationService.Infrastructure.Data;
-using JobApplicationService.Infrastructure.Managers;
 using JobApplicationService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers()
-	.AddNewtonsoftJson(); // Optional, if using NewtonsoftJson
+// Add services to the container
+builder.Services.AddControllers();
 
-// Register the DbContext
+// Register ApplicationDbContext for Dependency Injection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repositories and services
+// Register other services or repositories if needed
 builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
-builder.Services.AddScoped<IJobApplicationManager, JobApplicationManager>();
 
-// Add Swagger/OpenAPI documentation
+// Add services for Swagger (API documentation)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAllOrigins",
+		builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Job Application API v1"));
 }
+
+app.UseHttpsRedirection();
+
+app.UseCors("AllowAllOrigins");
+
+app.UseRouting();
 
 app.UseAuthorization();
 
