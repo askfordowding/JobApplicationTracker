@@ -1,0 +1,81 @@
+name: JobApplicationTracker CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: job-application-tracker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore backend tests
+        working-directory: JobApplicationTracker
+        run: |
+          dotnet restore JobApplicationService.Tests/JobApplicationService.Tests.csproj
+          dotnet restore JobApplicationService.IntegrationTests/JobApplicationService.IntegrationTests.csproj
+
+      - name: Build backend
+        working-directory: JobApplicationTracker
+        run: dotnet build JobApplicationService.API/JobApplicationService.API.csproj --configuration Release
+
+      - name: Run backend tests
+        working-directory: JobApplicationTracker
+        run: |
+          dotnet test JobApplicationService.Tests/JobApplicationService.Tests.csproj --configuration Release
+          dotnet test JobApplicationService.IntegrationTests/JobApplicationService.IntegrationTests.csproj --configuration Release
+
+      - name: Check vulnerable NuGet packages
+        working-directory: JobApplicationTracker
+        run: |
+          $output = dotnet list JobApplicationService.API/JobApplicationService.API.csproj package --vulnerable --include-transitive
+          $output
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($output -match 'has the following vulnerable packages') {
+            throw 'Vulnerable NuGet packages were reported.'
+          }
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: JobApplicationTracker/jobapplicationtracker.client/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: JobApplicationTracker/jobapplicationtracker.client
+        run: npm ci --no-fund
+
+      - name: Audit frontend dependencies
+        working-directory: JobApplicationTracker/jobapplicationtracker.client
+        run: npm audit --audit-level=high
+
+      - name: Build frontend
+        working-directory: JobApplicationTracker/jobapplicationtracker.client
+        run: npm run build
