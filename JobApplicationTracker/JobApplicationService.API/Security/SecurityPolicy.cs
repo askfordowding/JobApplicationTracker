@@ -19,4 +19,19 @@ public static class SecurityPolicy
 
         return IPAddress.TryParse(uri.Host, out var address) && IPAddress.IsLoopback(address);
     }
+
+    public static bool IsAllowedRemoteAddress(IPAddress? address)
+    {
+        if (address is null)
+        {
+            return false;
+        }
+
+        if (address.IsIPv4MappedToIPv6)
+        {
+            address = address.MapToIPv4();
+        }
+
+        return IPAddress.IsLoopback(address);
+    }
 }
