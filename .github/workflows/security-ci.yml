@@ -10,13 +10,35 @@ on:
 
 permissions:
   contents: read
+  statuses: write
 
 concurrency:
   group: job-application-tracker-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  mark-pending:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish pending status
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $body = @{
+            state = 'pending'
+            context = 'jobapplicationtracker/security-ci'
+            description = 'Security verification is running.'
+            target_url = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          } | ConvertTo-Json
+          Invoke-RestMethod -Method Post `
+            -Uri "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/statuses/$env:GITHUB_SHA" `
+            -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' } `
+            -ContentType 'application/json' -Body $body
+
   verify:
+    needs: mark-pending
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -79,3 +101,28 @@ jobs:
       - name: Build frontend
         working-directory: JobApplicationTracker/jobapplicationtracker.client
         run: npm run build
+
+  publish-result:
+    if: always()
+    needs: verify
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Publish final status
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          $state = if ($env:VERIFY_RESULT -eq 'success') { 'success' } else { 'failure' }
+          $description = if ($state -eq 'success') { 'Build, tests and dependency checks passed.' } else { 'Security verification failed.' }
+          $body = @{
+            state = $state
+            context = 'jobapplicationtracker/security-ci'
+            description = $description
+            target_url = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          } | ConvertTo-Json
+          Invoke-RestMethod -Method Post `
+            -Uri "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/statuses/$env:GITHUB_SHA" `
+            -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' } `
+            -ContentType 'application/json' -Body $body
