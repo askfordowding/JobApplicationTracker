@@ -6,41 +6,69 @@ namespace JobApplicationService.IntegrationTests;
 
 public sealed class SecurityPolicyTests
 {
-    [Theory]
-    [InlineData("http://localhost:5173")]
-    [InlineData("https://localhost:7101")]
-    [InlineData("http://127.0.0.1:5173")]
-    [InlineData("https://[::1]:7101")]
-    public void IsAllowedLocalOrigin_AllowsLoopbackOrigins(string origin)
+    [Fact]
+    public void IsAllowedLocalOrigin_AllowsLoopbackOrigins()
     {
-        Assert.True(SecurityPolicy.IsAllowedLocalOrigin(origin));
+        var origins = new[]
+        {
+            "http://localhost:5173",
+            "https://localhost:7101",
+            "http://127.0.0.1:5173",
+            "https://[::1]:7101"
+        };
+
+        foreach (var origin in origins)
+        {
+            Assert.True(SecurityPolicy.IsAllowedLocalOrigin(origin), $"Expected loopback origin to be allowed: {origin}");
+        }
     }
 
-    [Theory]
-    [InlineData("https://example.com")]
-    [InlineData("https://localhost.example.com")]
-    [InlineData("file:///tmp/index.html")]
-    [InlineData("not-a-uri")]
-    public void IsAllowedLocalOrigin_RejectsNonLoopbackOrigins(string origin)
+    [Fact]
+    public void IsAllowedLocalOrigin_RejectsNonLoopbackOrigins()
     {
-        Assert.False(SecurityPolicy.IsAllowedLocalOrigin(origin));
+        var origins = new[]
+        {
+            "https://example.com",
+            "https://localhost.example.com",
+            "file:///tmp/index.html",
+            "not-a-uri"
+        };
+
+        foreach (var origin in origins)
+        {
+            Assert.False(SecurityPolicy.IsAllowedLocalOrigin(origin), $"Expected non-loopback origin to be rejected: {origin}");
+        }
     }
 
-    [Theory]
-    [InlineData("127.0.0.1")]
-    [InlineData("::1")]
-    [InlineData("::ffff:127.0.0.1")]
-    public void IsAllowedRemoteAddress_AllowsLoopback(string address)
+    [Fact]
+    public void IsAllowedRemoteAddress_AllowsLoopback()
     {
-        Assert.True(SecurityPolicy.IsAllowedRemoteAddress(IPAddress.Parse(address)));
+        var addresses = new[]
+        {
+            "127.0.0.1",
+            "::1",
+            "::ffff:127.0.0.1"
+        };
+
+        foreach (var address in addresses)
+        {
+            Assert.True(SecurityPolicy.IsAllowedRemoteAddress(IPAddress.Parse(address)), $"Expected loopback address to be allowed: {address}");
+        }
     }
 
-    [Theory]
-    [InlineData("192.168.1.25")]
-    [InlineData("10.0.0.10")]
-    [InlineData("8.8.8.8")]
-    public void IsAllowedRemoteAddress_RejectsNonLoopback(string address)
+    [Fact]
+    public void IsAllowedRemoteAddress_RejectsNonLoopback()
     {
-        Assert.False(SecurityPolicy.IsAllowedRemoteAddress(IPAddress.Parse(address)));
+        var addresses = new[]
+        {
+            "192.168.1.25",
+            "10.0.0.10",
+            "8.8.8.8"
+        };
+
+        foreach (var address in addresses)
+        {
+            Assert.False(SecurityPolicy.IsAllowedRemoteAddress(IPAddress.Parse(address)), $"Expected non-loopback address to be rejected: {address}");
+        }
     }
 }
