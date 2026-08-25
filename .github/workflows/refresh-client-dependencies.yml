@@ -26,10 +26,11 @@ jobs:
           cache: npm
           cache-dependency-path: JobApplicationTracker/jobapplicationtracker.client/package-lock.json
 
-      - name: Remove obsolete Vue 2 compiler and refresh safe dependencies
+      - name: Refresh vulnerable client dependencies
         working-directory: JobApplicationTracker/jobapplicationtracker.client
         run: |
           npm uninstall vue-template-compiler --save-dev
+          npm install --save-dev vite@^8.2.2 @vitejs/plugin-vue@latest
           npm audit fix
           npm audit --audit-level=high
           npm run build
