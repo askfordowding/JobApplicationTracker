@@ -1,5 +1,6 @@
 using System.Net;
 using JobApplicationService.API.Security;
+using Xunit;
 
 namespace JobApplicationService.IntegrationTests;
 
